@@ -79,9 +79,9 @@ def training_loop(model, optimizer, loss_fn, dataloader, n_epochs):
 model.apply(init_weights)
 
 dataloader = torch.utils.data.DataLoader(grid_dataset, batch_size=128, shuffle=True)
-#training_loop(model, optimizer, loss_fn, dataloader, n_epochs)
+training_loop(model, optimizer, loss_fn, dataloader, n_epochs)
 
-#plt.plot(model.losses)
+plt.plot(model.losses)
 
 test_img_path = os.path.join(root_dir, 'test', '000.png')
 test_img = Image.open(test_img_path)
