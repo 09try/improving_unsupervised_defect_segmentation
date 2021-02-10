@@ -46,9 +46,10 @@ optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
 # loss function
 loss_fn = SSIMLoss(device)
+loss_fn = loss_fn.to(device)
 
 # training loop
-n_epochs = 10
+n_epochs = 1000
 def training_loop(model, optimizer, loss_fn, dataloader, n_epochs):
     model.to(device)
     model.train()
@@ -94,12 +95,11 @@ transform = T.Compose([
     
 test_img_t = transform(test_img)
 display_image(test_img_t)
+test_img_t = test_img_t.to(device)
 test_img_b = test_img_t.unsqueeze(0)
 print(test_img_b.shape)
     
 model.eval()
 out = model(test_img_b)
 display_image(out.squeeze(0))
-
 display_heat_map(test_img_t.squeeze(0), out.squeeze(0).squeeze(0))
-    

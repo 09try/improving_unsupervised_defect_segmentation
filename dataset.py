@@ -9,7 +9,8 @@ class MyDataset(Dataset):
         self.root_dir = root_dir
         self.transforms=transforms
         self.images_list = os.listdir(root_dir)
-        
+        self.images_list = self.images_list[0:1500]
+
     def __len__(self):
         return len(self.images_list)
     
