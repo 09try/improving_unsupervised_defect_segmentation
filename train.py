@@ -8,7 +8,7 @@ from PIL import Image
 
 import os
 
-from utils import display_image, display_heat_map
+from utils import display_image, display_heat_map, save_image
 from dataset import MyDataset
 from models import Model, init_weights
 from losses import SSIMLoss
@@ -16,6 +16,8 @@ from losses import SSIMLoss
 import datetime
 
 root_dir = r'data\grid'
+results_dir = 'results/'
+models_dir = 'models'
 
 device = (torch.device('cuda:0') if torch.cuda.is_available() else torch.device('cpu'))
 print(device)
@@ -23,7 +25,6 @@ print(device)
 img_path = os.path.join(root_dir, 'good', '000.png')
 img = Image.open(img_path)
 #display_image(img)
-
 
 # dataset
 t = T.Compose([
@@ -37,8 +38,12 @@ display_image(img)
 
 # model
 model = Model()
-out = model(img.unsqueeze(0))
-display_image(out.squeeze(0))
+in_img = img.unsqueeze(0)
+out_img = model(in_img)
+out_img = out_img.squeeze(0)
+display_image(out_img)
+save_image(img, results_dir + 'in')
+save_image(out_img, results_dir + 'out')
 
 # optimizer
 learning_rate = 0.001
@@ -82,6 +87,9 @@ model.apply(init_weights)
 dataloader = torch.utils.data.DataLoader(grid_dataset, batch_size=128, shuffle=True)
 training_loop(model, optimizer, loss_fn, dataloader, n_epochs)
 
+date_time = datetime.datetime.now().strftime("%Y_%m_%d__%H_%M_%S")
+torch.save(model.state_dict(), os.path.join(models_path, date_time + '_model.pt'))
+
 plt.plot(model.losses)
 
 test_img_path = os.path.join(root_dir, 'test', '000.png')
@@ -101,5 +109,8 @@ print(test_img_b.shape)
     
 model.eval()
 out = model(test_img_b)
-display_image(out.squeeze(0))
-display_heat_map(test_img_t.squeeze(0), out.squeeze(0).squeeze(0))
+out = out.squeeze(0)
+display_image(out)
+heat_map = display_heat_map(test_img_t.squeeze(0), out.squeeze(0).squeeze(0))
+save_image(out, results_dir + 'out2')
+save_image(heat_map, results_dir + 'heat_map')
