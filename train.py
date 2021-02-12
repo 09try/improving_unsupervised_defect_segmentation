@@ -8,7 +8,7 @@ from PIL import Image
 
 import os
 
-from utils import display_image, display_heat_map, save_image
+from utils import display_image, display_heat_map
 from dataset import MyDataset
 from models import Model, init_weights
 from losses import SSIMLoss
@@ -34,16 +34,14 @@ t = T.Compose([
 grid_dataset = MyDataset(os.path.join(root_dir, 'train', 'augmented'), transforms=t)
 
 img = grid_dataset[0]
-display_image(img)
+display_image(img , save_image=True, name=os.path.join(results_dir + 'in.png'))
 
 # model
 model = Model()
 in_img = img.unsqueeze(0)
 out_img = model(in_img)
 out_img = out_img.squeeze(0)
-display_image(out_img)
-save_image(img, results_dir + 'in')
-save_image(out_img, results_dir + 'out')
+display_image(out_img, save_image=True, name=os.path.join(results_dir + 'out.png'))
 
 # optimizer
 learning_rate = 0.001
@@ -88,29 +86,6 @@ dataloader = torch.utils.data.DataLoader(grid_dataset, batch_size=128, shuffle=T
 training_loop(model, optimizer, loss_fn, dataloader, n_epochs)
 
 date_time = datetime.datetime.now().strftime("%Y_%m_%d__%H_%M_%S")
-torch.save(model.state_dict(), os.path.join(models_path, date_time + '_model.pt'))
+torch.save(model.state_dict(), os.path.join(models_dir, date_time + '_model.pt'))
 
 plt.plot(model.losses)
-
-test_img_path = os.path.join(root_dir, 'test', '000.png')
-test_img = Image.open(test_img_path)
-
-transform = T.Compose([
-    T.Resize(256),
-    T.RandomCrop(128),
-    T.ToTensor()
-])
-    
-test_img_t = transform(test_img)
-display_image(test_img_t)
-test_img_t = test_img_t.to(device)
-test_img_b = test_img_t.unsqueeze(0)
-print(test_img_b.shape)
-    
-model.eval()
-out = model(test_img_b)
-out = out.squeeze(0)
-display_image(out)
-heat_map = display_heat_map(test_img_t.squeeze(0), out.squeeze(0).squeeze(0))
-save_image(out, results_dir + 'out2')
-save_image(heat_map, results_dir + 'heat_map')
