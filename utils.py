@@ -3,7 +3,7 @@ import torchvision.transforms as T
 import torch
 from skimage.metrics import structural_similarity
 
-def display_image(image, figsize=(5, 5), save_image=False, name=None):
+def display_image(image, figsize=(3, 3), save_image=False, name=None):
     plt.figure(figsize=figsize)
     
     if torch.is_tensor(image):
